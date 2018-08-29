@@ -38,6 +38,13 @@ defmodule Untrusted do
         Map.get(@validators_map, name)
       end
 
+      def run_validations(validations, params) do
+        Untrusted.Validation.run(validations, params)
+      end
+
+      def build_validations(validations) do
+        Untrusted.Builder.build(validations)
+      end
     end
   end
 end
