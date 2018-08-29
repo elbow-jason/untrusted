@@ -3,10 +3,11 @@ defmodule Untrusted.Validator do
     quote do
       alias Untrusted.{Builder, Validation}
 
-      @built Builder.build(Module.get_attribute(__MODULE__, :namespaces), unquote(kwargs))
-
+      namespaces = Module.get_attribute(__MODULE__, :namespaces)
+      built  = Builder.build(namespaces, unquote(kwargs))
+      Module.put_attribute(__MODULE__, :built, built)
       Module.register_attribute(__MODULE__, :validations, accumulate: true)
-      Module.put_attribute(__MODULE__, :validations, {:__default__, @built})
+      Module.put_attribute(__MODULE__, :validations, {:__default__, built})
 
       def validate(params) do
         Validation.run(@built, params)
@@ -17,11 +18,11 @@ defmodule Untrusted.Validator do
   defmacro validator(name, kwargs) do
     quote do
       alias Untrusted.{Builder, Validation}
-
-      @built Builder.build(Module.get_attribute(__MODULE__, :namespaces), unquote(kwargs))
-
+      namespaces = Module.get_attribute(__MODULE__, :namespaces)
+      built = Builder.build(namespaces, unquote(kwargs))
+      Module.put_attribute(__MODULE__, :built, built)
       Module.register_attribute(__MODULE__, :validations, accumulate: true)
-      Module.put_attribute(__MODULE__, :validations, {unquote(name), @built})
+      Module.put_attribute(__MODULE__, :validations, {unquote(name), built})
 
       def validate(unquote(name), params) do
         Validation.run(@built, params)
