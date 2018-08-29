@@ -5,6 +5,7 @@ defmodule Untrusted do
 
   defmacro __using__(kwargs \\ []) do
     quote do
+      require Untrusted
       kwargs = unquote(kwargs)
       @namespaces Keyword.get(kwargs, :namespaces, []) ++ [Untrusted.Validators]
       def __untrusted__(:namespaces) do
