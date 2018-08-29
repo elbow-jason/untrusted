@@ -43,7 +43,7 @@ defmodule Untrusted do
       end
 
       def build_validations(validations) do
-        Untrusted.Builder.build(validations)
+        Untrusted.Builder.build(@namespaces, validations)
       end
     end
   end
