@@ -30,6 +30,14 @@ defmodule Untrusted do
         @validators_map
       end
 
+      def get_validator() do
+        get_validator(:__default__)
+      end
+
+      def get_validator(name) do
+        Map.get(@validators_map, name)
+      end
+
     end
   end
 end
