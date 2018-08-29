@@ -80,6 +80,10 @@ defmodule Untrusted.Builder do
     %Validation{validation | required?: false}
   end
 
+  defp put_required(%Validation{} = validation, true) do
+    validation
+  end
+
   defp update_required(mapping, %Validation{field: field_key, required?: required} = validiation) do
     Map.update(mapping, field_key, validiation, fn prev -> put_required(prev, required) end)
   end

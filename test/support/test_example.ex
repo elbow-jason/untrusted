@@ -5,6 +5,7 @@ defmodule Untrusted.TestExample do
   end
 
   use Untrusted, namespaces: [Untrusted.TestExample.Validators]
+  require Untrusted.OtherExample
 
   validator [
     name: :string
