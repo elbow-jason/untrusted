@@ -72,15 +72,11 @@ defmodule Untrusted.Builder do
     end)
   end
 
-  defp put_required(%Validation{required?: nil} = validation, value) do
+  defp put_required(%Validation{required?: nil} = validation, value) when is_boolean(value) do
     %Validation{validation | required?: value}
   end
 
-  defp put_required(%Validation{} = validation, false) do
-    %Validation{validation | required?: false}
-  end
-
-  defp put_required(%Validation{} = validation, true) do
+  defp put_required(%Validation{} = validation, _) do
     validation
   end
 
