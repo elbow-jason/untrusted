@@ -2,6 +2,7 @@ defmodule Untrusted.Builder do
   alias Untrusted.{Validation, Resolver}
 
   def build(namespaces, validations) do
+    IO.inspect({namespaces, validations}, label: :building)
     validations
     |> Enum.reduce(%{}, fn entry, acc -> update_mapping(acc, do_build(namespaces, entry)) end)
     |> Enum.map(fn {_, validation} -> post_process(validation) end)

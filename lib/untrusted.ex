@@ -59,7 +59,9 @@ defmodule Untrusted do
   end
 
   defmacro build(namespaces, validations) do
-    Untrusted.Builder.build(namespaces, validations)
+    quote do
+      Untrusted.Builder.build(unquote(namespaces), unquote(validations))
+    end
   end
 
   def run_validations(validations, params) do
