@@ -58,7 +58,7 @@ defmodule Untrusted do
     end
   end
 
-  def run_validatons(validations, params) do
+  def run_validations(validations, params) do
     Untrusted.Validation.run(validations, params)
   end
 end
