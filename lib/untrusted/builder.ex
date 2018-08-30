@@ -10,7 +10,7 @@ defmodule Untrusted.Builder do
   defp post_process(%Validation{functions: funcs, required?: required?, list?: list?} = validation) do
     %Validation{
       validation
-      | functions: Enum.reverse(funcs),
+      | functions: funcs |> List.flatten,
         required?: ensure_boolean(required?, true),
         list?: ensure_boolean(list?, false)
     }
@@ -71,9 +71,9 @@ defmodule Untrusted.Builder do
     mapping
   end
 
-  defp add_function(mapping, %Validation{field: field_key, functions: [mfarity]} = validation) do
+  defp add_function(mapping, %Validation{field: field_key, functions: more_functions} = validation) do
     Map.update(mapping, field_key, validation, fn %Validation{functions: functions} = prev ->
-      %Validation{prev | functions: [mfarity | functions]}
+      %Validation{prev | functions: [more_functions | functions]}
     end)
   end
 

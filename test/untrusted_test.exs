@@ -2,8 +2,6 @@ defmodule UntrustedTest do
   use ExUnit.Case
   doctest Untrusted
 
-  alias Untrusted.Validation
-
   test "__untrusted__(:namespaces) lists configured namespaces" do
     assert Untrusted.TestExample.__untrusted__(:namespaces) == [Untrusted.TestExample.Validators, Untrusted.Validators]
   end
