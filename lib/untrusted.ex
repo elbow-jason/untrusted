@@ -54,9 +54,17 @@ defmodule Untrusted do
       if is_nil(@namespaces) do
         raise "Untrusted.build/1 requires the :namespaces provided by the `use Untrusted` macro."
       end
-      Untrusted.Builder.build(@namespaces, unquote(validations))
+      Untrusted.build(@namespaces, unquote(validations))
     end
   end
+
+  defmacro build(namespaces, validations) do
+    built = Untrusted.Builder.build(namespaces, validations)
+    quote do
+      unquote(built)
+    end
+  end
+
 
   def run_validations(validations, params) do
     Untrusted.Validation.run(validations, params)
