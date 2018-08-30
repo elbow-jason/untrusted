@@ -71,10 +71,6 @@ defmodule Untrusted.Resolver do
       description: "Unable to resovle the function #{function_name}/#{arity} in any of the modules #{pretty_modules}"
   end
 
-  defp raise_module_not_resolved!(module) do
-    raise CompileError, description: "Unable to resolve module #{prettify(module)}"
-  end
-
   defp prettify(module) when is_atom(module) do
     inspect(module)
   end
@@ -99,18 +95,4 @@ defmodule Untrusted.Resolver do
     end
   end
 
-  # defp ensure_loaded!(module) do
-  #   try do
-  #     case Code.ensure_loaded(module) do
-  #       {:module, _} ->
-  #         module
-
-  #       _ ->
-  #         raise_module_not_resolved!(module)
-  #     end
-  #   rescue
-  #     ArgumentError ->
-  #       raise_module_not_resolved!(module)
-  #   end
-  # end
 end
