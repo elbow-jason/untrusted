@@ -1,9 +1,11 @@
 defmodule Untrusted.Resolver do
 
+  @spec unalias(atom()) :: atom()
   def unalias(module) do
     module
   end
 
+  @spec unalias(any(), Macro.Env.t()) :: atom()
   def unalias(module, %Macro.Env{aliases: aliases}) do
     aliases
     |> Enum.find(fn
@@ -97,18 +99,18 @@ defmodule Untrusted.Resolver do
     end
   end
 
-  defp ensure_loaded!(module) do
-    try do
-      case Code.ensure_loaded(module) do
-        {:module, _} ->
-          module
+  # defp ensure_loaded!(module) do
+  #   try do
+  #     case Code.ensure_loaded(module) do
+  #       {:module, _} ->
+  #         module
 
-        _ ->
-          raise_module_not_resolved!(module)
-      end
-    rescue
-      ArgumentError ->
-        raise_module_not_resolved!(module)
-    end
-  end
+  #       _ ->
+  #         raise_module_not_resolved!(module)
+  #     end
+  #   rescue
+  #     ArgumentError ->
+  #       raise_module_not_resolved!(module)
+  #   end
+  # end
 end

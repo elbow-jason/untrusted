@@ -24,6 +24,10 @@ defmodule Untrusted.Builder do
     Enum.map(funcs, fn func -> do_build(modules, {field_key, func}) end)
   end
 
+  defp do_build(_modules, %Validation{} = validation) do
+    validation
+  end
+
   defp do_build(_modules, {_field_key, %Validation{} = validation}) do
     validation
   end
