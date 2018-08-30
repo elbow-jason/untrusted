@@ -20,12 +20,15 @@ defmodule Untrusted.Validation do
   def run(%Validation{field: field} = validation, params) when is_map(params) do
     case {validation, Map.fetch(params, field)} do
       {_, {:ok, value}} ->
+        IO.puts("found #{inspect field} #{inspect value} for #{inspect validation}")
         run_with_value(validation, value)
 
       {%Validation{required?: true}, :error} ->
+        IO.puts("not_found required #{inspect field} for #{inspect validation}")
         error_required_key_not_found(validation, params)
 
       {%Validation{required?: false}, :error} ->
+        IO.puts("not_found optional #{inspect field} for #{inspect validation}")
         :ok
     end
   end
