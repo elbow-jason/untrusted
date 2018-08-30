@@ -8,58 +8,41 @@ defmodule UntrustedTest do
     assert Untrusted.TestExample.__untrusted__(:namespaces) == [Untrusted.TestExample.Validators, Untrusted.Validators]
   end
 
-  test "__untrusted__(:validators) is a map of lists" do
-    result = Untrusted.TestExample.__untrusted__(:validators)
-    assert is_map(result)
-    Enum.each(result, fn {_, validators} ->
-      assert is_list(validators)
-      Enum.each(validators, fn val ->
-        assert match?(%Validation{}, val)
-      end)
-    end)
-  end
-
-  test "validator/1 injects the function validate/1" do
-    Code.ensure_loaded?(Untrusted.TestExample)
-    assert function_exported?(Untrusted.TestExample, :validate, 1)
-  end
-
-  test "validator/2 injects the function validate/2" do
-    Code.ensure_loaded?(Untrusted.TestExample)
-    assert function_exported?(Untrusted.TestExample, :validate, 2)
-  end
 
   test "modules with a validate/1 can be used as a validator" do
-    assert Untrusted.TestExample.validate(:module_tester, %{other: %{count: "should_be_uint"}}) == [
-      %Untrusted.Error{field: :count, reason: :must_be_a_non_negative_integer, source: "should_be_uint"}
+    errors = [
+      %Untrusted.Error{field: :is_other?, reason: :must_be_a_boolean, source: "not_a_boolean"}
     ]
+    assert Untrusted.TestExample.module_tester(%{other: %{is_other?: "not_a_boolean"}}) == {:error, errors}
   end
 
-  test "validate/1 runs validations" do
-    assert Untrusted.TestExample.validate(%{item: 1}) == [
+  test "returns key is required for as reason for missing keys" do
+    errors = [
       %Untrusted.Error{
         field: :name,
         reason: :key_is_required,
         source: %{item: 1}
       }
     ]
-  end
-  test "validate/2 runs validations" do
-    assert Untrusted.TestExample.validate(:named_validator, %{item: 1}) == [
-      %Untrusted.Error{reason: :key_is_required, source: %{item: 1}, field: :count},
-    ]
+    assert Untrusted.TestExample.has_name(%{item: 1}) == {:error, errors}
   end
 
   test "validate/2 can handle lists when given non-list" do
-    assert Untrusted.TestExample.validate(:list_tester, %{items: 1}) == [
+    errors = [
       %Untrusted.Error{field: :items, reason: :must_be_a_list, source: 1}
     ]
+    assert Untrusted.TestExample.int_list_item_tester(%{items: 1}) == {:error, errors}
   end
 
   test "validate/2 can handle lists when given invalid items" do
-    assert Untrusted.TestExample.validate(:list_tester, %{items: [:one]}) == [
-      %Untrusted.Error{field: :items, reason:  :must_be_an_integer, source: :one}
+    errors = [
+      %Untrusted.Error{field: :items, reason:  :must_be_an_integer, source: :one},
     ]
+    assert Untrusted.TestExample.int_list_item_tester(%{items: [:one]}) == {:error, errors}
+  end
+
+  test "validate/2 returns :ok when item is valid" do
+    assert Untrusted.TestExample.has_name(%{name: "Jason"}) == :ok
   end
 
 end

@@ -2,7 +2,6 @@ defmodule Untrusted.Builder do
   alias Untrusted.{Validation, Resolver}
 
   def build(namespaces, validations) do
-    IO.inspect({namespaces, validations}, label: :building)
     validations
     |> Enum.reduce(%{}, fn entry, acc -> update_mapping(acc, do_build(namespaces, entry)) end)
     |> Enum.map(fn {_, validation} -> post_process(validation) end)
@@ -42,10 +41,11 @@ defmodule Untrusted.Builder do
   end
 
   defp do_build(modules, {field_key, func_or_module} = entry) when is_atom(func_or_module) do
-    if function_exported?(func_or_module, :validate, 1) do
-      %Validation{field: field_key, functions: [find_function([func_or_module], :validate)]}
-    else
-      %Validation{field: field_key, functions: [find_function(modules, entry)]}
+    case find_function([func_or_module], :validate, 1) do
+      {:ok, module, function, arity} ->
+        %Validation{field: field_key, functions: [{module, function, arity}]}
+      {:error, _} ->
+        %Validation{field: field_key, functions: [find_function!(modules, entry)]}
     end
   end
 
@@ -85,22 +85,23 @@ defmodule Untrusted.Builder do
     Map.update(mapping, field_key, validiation, fn prev -> put_required(prev, required) end)
   end
 
-  defp find_function(modules, {_field, function_name}) when is_atom(function_name) do
-    find_function(modules, function_name)
+  defp find_function!(modules, {_field, function_name}) when is_atom(function_name) do
+    find_function!(modules, function_name)
   end
 
-  defp find_function(_module, {_field, function}) when is_function(function, 1) do
+  defp find_function!(_module, {_field, function}) when is_function(function, 1) do
     function
   end
 
-  defp find_function(modules, function_name) when is_list(modules) and is_atom(function_name) do
-    find_function(modules, function_name, 1, [])
+  defp find_function!(modules, function_name) when is_list(modules) and is_atom(function_name) do
+    find_function!(modules, function_name, 1)
   end
 
-  defp find_function(modules, function_name, arity, extra_args)
-       when is_list(modules) and is_atom(function_name) and is_integer(arity) do
-    {validator_module, ^function_name, ^arity} = Resolver.resolve_module_function!(modules, function_name, arity)
+  defp find_function!(modules, function_name, arity) do
+    Resolver.resolve_module_function!(modules, function_name, arity)
+  end
 
-    {validator_module, function_name, arity, extra_args}
+  defp find_function(modules, function_name, arity) when is_list(modules) and is_atom(function_name) and is_integer(arity) do
+    Resolver.resolve_module_function(modules, function_name, arity)
   end
 end

@@ -1,8 +1,7 @@
 defmodule Untrusted.OtherExample do
   use Untrusted
 
-  validator [
-    count: :non_neg_integer
-  ]
-
+  def validate(params) do
+    Untrusted.validate([is_other?: :boolean], params)
+  end
 end

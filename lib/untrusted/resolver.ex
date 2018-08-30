@@ -48,8 +48,18 @@ defmodule Untrusted.Resolver do
   end
 
   def is_function?(module, function, arity) do
-    ensure_loaded!(module)
+    ensure_loaded(module)
     function_exported?(module, function, arity)
+  end
+
+  def is_module?(module) when is_atom(module) do
+    case Code.ensure_loaded(module) do
+      {:module, _} -> true
+      _ -> false
+    end
+  end
+  def is_module?(_) do
+    false
   end
 
   defp raise_no_such_function!(modules, function_name, arity) do
@@ -64,19 +74,27 @@ defmodule Untrusted.Resolver do
   end
 
   defp prettify(module) when is_atom(module) do
-    module
-    |> Module.split()
-    |> Enum.join(".")
+    inspect(module)
   end
 
   defp prettify(modules) when is_list(modules) do
     modules
     |> Enum.map(fn mod ->
       mod
-      |> ensure_loaded!()
+      |> ensure_loaded()
       |> prettify()
     end)
     |> Enum.join(", ")
+  end
+
+  defp ensure_loaded(module) do
+    try do
+      Code.ensure_loaded(module)
+      module
+    rescue
+      _ ->
+        module
+    end
   end
 
   defp ensure_loaded!(module) do

@@ -59,6 +59,8 @@ defmodule Untrusted.Validation do
           errors
         more_errors when is_list(more_errors) ->
           [more_errors | errors]
+        {:error, more_errors} when is_list(more_errors) ->
+          [more_errors | errors]
         {:error, reason} when is_atom(reason) ->
           [into_error(validation, value, reason) | errors]
       end
@@ -73,12 +75,8 @@ defmodule Untrusted.Validation do
     }
   end
 
-  defp do_apply({module, function, _, []}, value) do
+  defp do_apply({module, function, _}, value) do
     apply(module, function, [value])
-  end
-
-  defp do_apply({module, function, _, extra_args}, value) do
-    apply(module, function, [value] ++ extra_args)
   end
 
   defp do_apply(func, value) when is_function(func, 1) do

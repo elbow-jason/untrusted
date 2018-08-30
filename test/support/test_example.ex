@@ -7,20 +7,25 @@ defmodule Untrusted.TestExample do
   use Untrusted, namespaces: [Untrusted.TestExample.Validators]
   require Untrusted.OtherExample
 
-  validator [
-    name: :string
-  ]
+  def has_name(params) do
+    Untrusted.validate([name: :string], params)
+  end
 
-  validator :named_validator, [
-    count: :non_neg_integer
-  ]
+  def has_count(params) do
+    Untrusted.validate([count: :non_neg_integer], params)
+  end
 
-  validator :list_tester, [
-    items: [:list, :integer]
-  ]
+  def int_list_item_tester(params) do
+    Untrusted.validate([
+      items: [:list, :integer]
+    ], params)
+  end
 
-  validator :module_tester, [
-    other: Untrusted.OtherExample
-  ]
+
+  def module_tester(params) do
+    Untrusted.validate([
+      other: Untrusted.OtherExample
+    ], params)
+  end
 
 end

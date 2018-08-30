@@ -9,7 +9,7 @@ defmodule Untrusted.BuilderTest do
         %Validation{
           field: :count,
           required?: true,
-          functions: [{Untrusted.Validators, :integer, 1, []}],
+          functions: [{Untrusted.Validators, :integer, 1}],
           list?: false,
         }
       ] == Builder.build(@namespaces, [count: :integer])
