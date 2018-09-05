@@ -28,4 +28,12 @@ defmodule Untrusted.TestExample do
     ], params)
   end
 
+  def multiple_fields(params) do
+    Untrusted.validate([
+      count: :integer,
+      age: :integer,
+      number: :integer,
+    ], params)
+  end
+
 end

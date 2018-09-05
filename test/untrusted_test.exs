@@ -43,4 +43,20 @@ defmodule UntrustedTest do
     assert Untrusted.TestExample.has_name(%{name: "Jason"}) == {:ok, %{name: "Jason"}}
   end
 
+  test "validate/2 works on multiple fields" do
+    assert Untrusted.TestExample.multiple_fields(%{age: 1}) == {:error,
+    [
+      %Untrusted.Error{
+        field: :number,
+        reason: :key_is_required,
+        source: %{age: 1}
+      },
+      %Untrusted.Error{
+        field: :count,
+        reason: :key_is_required,
+        source: %{age: 1}
+      }
+    ]}
+  end
+
 end
