@@ -1,0 +1,21 @@
+defmodule Untrusted.Context do
+  alias Untrusted.{
+    Context,
+    Error,
+  }
+
+  defstruct [
+    validations: [],
+    validated: %{},
+    errors: [],
+    params: nil,
+  ]
+
+  def put_error(%Context{errors: prev} = ctx, %Error{} = error) do
+    %Context{ctx | errors: [error | prev]}
+  end
+
+  def put_validated(%Context{validated: prev} = ctx, key, value) do
+    %Context{ctx | validated: Map.put(prev, key, value)}
+  end
+end
