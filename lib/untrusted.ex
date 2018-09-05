@@ -19,10 +19,6 @@ defmodule Untrusted do
       unquote(validations)
       |> Untrusted.build()
       |> Untrusted.Validation.run(unquote(params))
-      |> case do
-        [] -> :ok
-        errors -> {:error, errors}
-      end
     end
   end
 

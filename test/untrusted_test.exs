@@ -39,8 +39,8 @@ defmodule UntrustedTest do
     assert Untrusted.TestExample.int_list_item_tester(%{items: [:one]}) == {:error, errors}
   end
 
-  test "validate/2 returns :ok when item is valid" do
-    assert Untrusted.TestExample.has_name(%{name: "Jason"}) == :ok
+  test "validator returns {:ok, <value>} when item is valid" do
+    assert Untrusted.TestExample.has_name(%{name: "Jason"}) == {:ok, %{name: "Jason"}}
   end
 
 end
