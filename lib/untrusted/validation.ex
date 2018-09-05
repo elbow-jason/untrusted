@@ -82,7 +82,7 @@ defmodule Untrusted.Validation do
         error = into_error(key, value, reason)
         Context.put_error(ctx, error)
       {:error, errors} when is_list(errors) ->
-        Enum.reduce(errors, ctx, fn err, ctx_acc -> Context.put_error(ctx_acc, err) end)
+        Context.put_error(ctx, errors)
     end
   end
 
