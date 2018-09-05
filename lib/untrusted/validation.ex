@@ -17,36 +17,28 @@ defmodule Untrusted.Validation do
             list?: nil,
             functions: []
 
-  def run(%Validation{field: field} = validation, params) when is_map(params) do
-    case {validation, Map.fetch(params, field)} do
-      {_, {:ok, value}} ->
-        validation
-        |> run_with_value(value)
-        |> post_process()
-      {%Validation{required?: true}, :error} ->
-        error_required_key_not_found(validation, params)
 
-      {%Validation{required?: false}, :error} ->
-        nil
-    end
-  end
 
   def run(validations, params) when is_list(validations) and is_map(params) do
     Enum.reduce(validations, {:ok, []}, fn validation, acc ->
       validation
-      |> run(params)
+      |> run_one(params)
       |> validation_reducer(acc)
     end)
     |> post_process()
   end
-  def run(%Validation{} = validation, value) do
-    case run_with_value(validation, value) do
-      {:ok, _, validated_value} ->
-        {:ok, validated_value}
-      {:error, _, error} ->
-        {:error, error}
+
+  defp run_one(%Validation{field: field} = validation, params) when is_map(params) do
+    case {validation, Map.fetch(params, field)} do
+      {_, {:ok, value}} ->
+        run_with_value(validation, value)
+
+      {%Validation{required?: true}, :error} ->
+        error_required_key_not_found(validation, params)
+
+      {%Validation{required?: false}, :error} ->
+        :ok
     end
-    |> post_process
   end
 
   defp post_process({:error, _, errors}) when is_list(errors) do
@@ -111,27 +103,33 @@ defmodule Untrusted.Validation do
       |> validation_reducer(acc)
     end)
   end
-  defp run_with_value(%Validation{list?: true, field: field_key} = validation, value) when not is_list(value) do
-    check_errors({%{}, [into_error(validation, value, :must_be_a_list)]}, field_key)
+  defp run_with_value(%Validation{list?: true} = validation, value) when not is_list(value) do
+    {:error, [into_error(validation, value, :must_be_a_list)]}
   end
-  defp run_with_value(%Validation{functions: funcs, field: field_key} = validation, value) do
-    Enum.reduce(funcs, {[], []}, fn func, {values, errors} ->
-      case do_apply(func, value) do
+  defp run_with_value(%Validation{functions: funcs, field: field_key}, value) do
+    Enum.reduce(funcs, {:ok, []}, fn func, acc ->
+      case func |> do_apply(value) do
         :ok ->
-          {[{field_key, value} | values], errors}
+          {:ok, {field_key, value}}
         {:ok, valid_value} ->
-          {[{field_key, valid_value} | values], errors}
-        {:error, more_errors} when is_list(more_errors) ->
-          {values, [more_errors | errors]}
-        {:error, reason} when is_atom(reason) ->
-          {values, [into_error(validation, value, reason) | errors]}
+          {:ok, {field_key, valid_value}}
+        err ->
+          err
       end
+      |> validation_reducer(acc)
     end)
-    |> check_errors(field_key)
+    |> check_errors(field_key, value)
   end
 
-  defp check_errors({valid_value, []}, field_key), do: {:ok, field_key, valid_value}
-  defp check_errors({_, errors}, field_key) when is_list(errors), do: {:error, field_key, errors}
+  defp check_errors({:ok, [{field_key, _}]} = okay, field_key, _), do: okay
+  defp check_errors({:error, errors}, _, _) when is_list(errors), do: {:error, errors}
+  defp check_errors({:error, reason}, field_key, value) when is_atom(reason) do
+    {:error, [%Error{
+      field: field_key,
+      reason: reason,
+      source: value,
+    }]}
+  end
 
   defp into_error(%Validation{field: field}, value, reason) do
     %Error{
