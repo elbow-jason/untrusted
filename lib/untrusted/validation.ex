@@ -99,6 +99,10 @@ defmodule Untrusted.Validation do
     {:ok, [valid_value | prev]}
   end
 
+  defp validation_reducer({:ok, _}, {:error, errors}) when is_list(errors) do
+    {:error, errors}
+  end
+
   defp run_with_value(%Validation{list?: true} = validation, values) when is_list(values) do
     unlisty_validation = %Validation{validation | list?: false}
     Enum.reduce(values, {:ok, []}, fn value, acc ->
