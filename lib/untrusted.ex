@@ -40,7 +40,8 @@ defmodule Untrusted do
 
   defmacro build(validations) do
     quote do
-      Untrusted.build(__MODULE__, unquote(validations))
+      require Untrusted.Builder
+      Untrusted.Builder.build(__MODULE__.__untrusted__(:namespaces), unquote(validations))
     end
   end
 

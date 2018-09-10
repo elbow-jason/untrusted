@@ -112,4 +112,15 @@ defmodule UntrustedTest do
     error = %Untrusted.Error{field: :works, reason: :must_be_nil, source: :maybe}
     assert result == {:error, [error]}
   end
+
+  test "build/2 works" do
+    assert Untrusted.build(Untrusted.TestExample, [works: :must_be_nil]) == [
+      %Untrusted.Validation{
+        field: :works,
+        functions: [{Untrusted.Validators, :must_be_nil, 1}],
+        list?: false,
+        required?: true
+      }
+    ]
+  end
 end
