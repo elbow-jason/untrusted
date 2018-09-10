@@ -3,6 +3,7 @@ defmodule Untrusted.Validation do
     Error,
     Validation,
     Context,
+    Helpers
   }
 
   @type field_key :: any
@@ -18,12 +19,10 @@ defmodule Untrusted.Validation do
             list?: nil,
             functions: []
 
-
-
   def run(validations, params) when is_list(validations) and is_map(params) do
     %Context{
       validations: validations,
-      params: params,
+      params: params
     }
     |> run_context()
     |> unpack_context()
@@ -38,12 +37,13 @@ defmodule Untrusted.Validation do
   defp unpack_context(%Context{errors: [], validated: validated}) do
     {:ok, validated}
   end
-  defp unpack_context(%Context{errors: [_|_] = errors}) do
+
+  defp unpack_context(%Context{errors: [_ | _] = errors}) do
     {:error, errors}
   end
 
   defp run_one(%Context{params: params} = ctx, %Validation{field: field} = validation) do
-    case {validation, Map.fetch(params, field)} do
+    case {validation, Helpers.map_fetch(params, field)} do
       {_, {:ok, value}} ->
         run_with_value(ctx, validation, value)
 
@@ -58,14 +58,17 @@ defmodule Untrusted.Validation do
 
   defp run_with_value(ctx, %Validation{list?: true} = validation, values) when is_list(values) do
     unlisty_validation = %Validation{validation | list?: false}
+
     Enum.reduce(values, ctx, fn value, ctx_acc ->
       run_with_value(ctx_acc, unlisty_validation, value)
     end)
   end
+
   defp run_with_value(ctx, %Validation{list?: true, field: key}, value) when not is_list(value) do
     error = into_error(key, value, :must_be_a_list)
     Context.put_error(ctx, error)
   end
+
   defp run_with_value(ctx, %Validation{list?: false, functions: funcs, field: key}, value) do
     Enum.reduce(funcs, ctx, fn func, ctx_acc ->
       apply_func(ctx_acc, func, key, value)
@@ -76,10 +79,13 @@ defmodule Untrusted.Validation do
     case do_apply(func, value) do
       :ok ->
         Context.put_validated(ctx, key, value)
+
       {:ok, valid_value} ->
         Context.put_validated(ctx, key, valid_value)
-      {:error, reason} when is_atom(reason) or is_tuple(reason)->
+
+      {:error, reason} when is_atom(reason) or is_tuple(reason) ->
         Context.put_error(ctx, into_error(key, value, reason))
+
       {:error, errors} when is_list(errors) ->
         Context.put_error(ctx, errors)
     end
@@ -89,7 +95,7 @@ defmodule Untrusted.Validation do
     %Error{
       field: key,
       source: value,
-      reason: reason,
+      reason: reason
     }
   end
 

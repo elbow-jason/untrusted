@@ -1,15 +1,13 @@
 defmodule Untrusted.Context do
   alias Untrusted.{
     Context,
-    Error,
+    Error
   }
 
-  defstruct [
-    validations: [],
-    validated: %{},
-    errors: [],
-    params: nil,
-  ]
+  defstruct validations: [],
+            validated: %{},
+            errors: [],
+            params: nil
 
   def put_error(%Context{errors: prev} = ctx, %Error{} = error) do
     %Context{ctx | errors: [error | prev]}

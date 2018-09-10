@@ -3,7 +3,7 @@ defmodule Untrusted.ValidatorFunctions do
 
   @type collection :: list(any) | MapSet.t()
 
-  @spec must_be_one_of(collection()) :: (any() ->  must_be_one_of_error() | {:ok, any()})
+  @spec must_be_one_of(collection()) :: (any() -> must_be_one_of_error() | {:ok, any()})
   def must_be_one_of(items) when is_list(items) do
     do_must_be_one_of(items)
   end
@@ -13,7 +13,7 @@ defmodule Untrusted.ValidatorFunctions do
   end
 
   defp do_must_be_one_of(items) do
-    fn (value) ->
+    fn value ->
       if value in items do
         {:ok, value}
       else
@@ -31,5 +31,4 @@ defmodule Untrusted.ValidatorFunctions do
       end
     end
   end
-
 end

@@ -36,20 +36,22 @@ defmodule Untrusted.ValidatorFunctionsTest do
     test "returns a function of arity 1" do
       mapping = %{
         "ONE" => 1,
-        "TWO" => 2,
+        "TWO" => 2
       }
+
       func = Untrusted.ValidatorFunctions.must_be_key_of(mapping)
       assert is_function(func, 1)
     end
+
     test "func returns an ok-value-tuple when value is in the keys of the map" do
       mapping = %{
         "ONE" => 1,
-        "TWO" => 2,
+        "TWO" => 2
       }
+
       func = Untrusted.ValidatorFunctions.must_be_key_of(mapping)
       assert Map.get(mapping, "ONE") == 1
       assert func.("ONE") == {:ok, 1}
     end
   end
-
 end

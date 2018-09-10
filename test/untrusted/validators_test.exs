@@ -23,10 +23,11 @@ defmodule Untrusted.ValidatorTest do
 
   test "is_uint8/1 works" do
     assert Validators.uint8(-1) == {:error, :must_be_a_uint8}
+
     for n <- 0..255 do
       assert Validators.uint8(n) == :ok
     end
+
     assert Validators.uint8(256) == {:error, :must_be_a_uint8}
   end
-
 end

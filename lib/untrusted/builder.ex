@@ -16,7 +16,7 @@ defmodule Untrusted.Builder do
   def post_process(%Validation{functions: funcs, required?: required?, list?: list?} = validation) do
     %Validation{
       validation
-      | functions: funcs |> List.flatten,
+      | functions: funcs |> List.flatten(),
         required?: ensure_boolean(required?, true),
         list?: ensure_boolean(list?, false)
     }
@@ -54,6 +54,7 @@ defmodule Untrusted.Builder do
     case find_function([func_or_module], :validate, 1) do
       {:ok, module, function, arity} ->
         %Validation{field: field_key, functions: [{module, function, arity}]}
+
       {:error, _} ->
         %Validation{field: field_key, functions: [find_function!(modules, entry)]}
     end

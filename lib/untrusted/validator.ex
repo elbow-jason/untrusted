@@ -4,7 +4,7 @@ defmodule Untrusted.Validator do
       alias Untrusted.{Builder, Validation}
 
       namespaces = Module.get_attribute(__MODULE__, :namespaces)
-      built  = Builder.build(namespaces, unquote(kwargs))
+      built = Builder.build(namespaces, unquote(kwargs))
       Module.put_attribute(__MODULE__, :built, built)
       Module.register_attribute(__MODULE__, :validations, accumulate: true)
       Module.put_attribute(__MODULE__, :validations, {:__default__, built})

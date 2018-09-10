@@ -1,5 +1,4 @@
 defmodule Untrusted.Resolver do
-
   @spec unalias(atom()) :: atom()
   def unalias(module) do
     module
@@ -26,6 +25,7 @@ defmodule Untrusted.Resolver do
     |> case do
       nil ->
         {:error, :no_such_function}
+
       found_module ->
         {:ok, found_module, function_name, arity}
     end
@@ -60,6 +60,7 @@ defmodule Untrusted.Resolver do
       _ -> false
     end
   end
+
   def is_module?(_) do
     false
   end
@@ -94,5 +95,4 @@ defmodule Untrusted.Resolver do
         module
     end
   end
-
 end

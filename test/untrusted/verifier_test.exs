@@ -27,5 +27,4 @@ defmodule Untrusted.VerifierTest do
     assert Verify.is_uint8(255) == true
     assert Verify.is_uint8(256) == false
   end
-
 end

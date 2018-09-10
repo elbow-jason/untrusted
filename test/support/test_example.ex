@@ -16,24 +16,31 @@ defmodule Untrusted.TestExample do
   end
 
   def int_list_item_tester(params) do
-    Untrusted.validate([
-      items: [:list, :integer]
-    ], params)
+    Untrusted.validate(
+      [
+        items: [:list, :integer]
+      ],
+      params
+    )
   end
 
-
   def module_tester(params) do
-    Untrusted.validate([
-      other: Untrusted.OtherExample
-    ], params)
+    Untrusted.validate(
+      [
+        other: Untrusted.OtherExample
+      ],
+      params
+    )
   end
 
   def multiple_fields(params) do
-    Untrusted.validate([
-      count: :integer,
-      age: :integer,
-      number: :integer,
-    ], params)
+    Untrusted.validate(
+      [
+        count: :integer,
+        age: :integer,
+        number: :integer
+      ],
+      params
+    )
   end
-
 end
