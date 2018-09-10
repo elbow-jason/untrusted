@@ -1,16 +1,14 @@
 defmodule Untrusted.Builder do
   alias Untrusted.{Validation, Resolver}
 
-  defmacro build(namespaces, validations) do
-    quote do
-      unquote(validations)
-      |> Enum.reduce(%{}, fn entry, acc ->
-        Untrusted.Builder.update_mapping(acc, Untrusted.Builder.build_one(unquote(namespaces), entry))
-      end)
-      |> Enum.map(fn {_, validation} ->
-        Untrusted.Builder.post_process(validation)
-      end)
-    end
+  def build(namespaces, validations) do
+    validations
+    |> Enum.reduce(%{}, fn entry, acc ->
+      Untrusted.Builder.update_mapping(acc, Untrusted.Builder.build_one(namespaces, entry))
+    end)
+    |> Enum.map(fn {_, validation} ->
+      Untrusted.Builder.post_process(validation)
+    end)
   end
 
   def post_process(%Validation{functions: funcs, required?: required?, list?: list?} = validation) do

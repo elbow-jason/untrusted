@@ -8,39 +8,27 @@ defmodule Untrusted.TestExample do
   require Untrusted.OtherExample
 
   def has_name(params) do
-    Untrusted.validate([name: :string], params)
+    validate([name: :string], params)
   end
 
   def has_count(params) do
-    Untrusted.validate([count: :non_neg_integer], params)
+    validate([count: :non_neg_integer], params)
   end
 
   def int_list_item_tester(params) do
-    Untrusted.validate(
-      [
-        items: [:list, :integer]
-      ],
-      params
-    )
+    validate([items: [:list, :integer]], params)
   end
 
   def module_tester(params) do
-    Untrusted.validate(
-      [
-        other: Untrusted.OtherExample
-      ],
-      params
-    )
+    validate([other: Untrusted.OtherExample], params)
   end
 
   def multiple_fields(params) do
-    Untrusted.validate(
-      [
-        count: :integer,
-        age: :integer,
-        number: :integer
-      ],
-      params
-    )
+    [
+      count: :integer,
+      age: :integer,
+      number: :integer
+    ]
+    |> validate(params)
   end
 end

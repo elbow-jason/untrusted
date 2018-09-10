@@ -123,4 +123,17 @@ defmodule UntrustedTest do
       }
     ]
   end
+
+  describe "use Untrusted" do
+    test "injects build" do
+      result = Untrusted.TestExample.validate([works: :must_be_nil], %{works: :maybe})
+      assert result == {:error, [
+        %Untrusted.Error{
+          field: :works,
+          reason: :must_be_nil,
+          source: :maybe
+        }
+      ]}
+    end
+  end
 end

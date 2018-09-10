@@ -19,23 +19,27 @@ defmodule Untrusted do
       def __untrusted__(:namespaces) do
         @namespaces
       end
+
+      def validate(validations, params) do
+        @namespaces
+        |> Builder.build(validations)
+        |> Validation.run(params)
+      end
+
+      def build(validations) do
+        Untrusted.Builder.build(@namespaces, validations)
+      end
+
+      def build(module, validations) when is_atom(module) do
+        Untrusted.Builder.build(module.__untrusted__(:namespaces), validations)
+      end
     end
   end
 
-  defmacro validate(validations, params) do
-    quote do
-      Untrusted.validate(__MODULE__, unquote(validations), unquote(params))
-    end
-  end
-
-  defmacro validate(module, validations, params) do
-    quote do
-      require Untrusted.Builder
-
-      unquote(module).__untrusted__(:namespaces)
-      |> Untrusted.Builder.build(unquote(validations))
-      |> Validation.run(unquote(params))
-    end
+  def validate(module, validations, params) do
+    module.__untrusted__(:namespaces)
+    |> Builder.build(validations)
+    |> Validation.run(params)
   end
 
   defmacro build(validations) do
