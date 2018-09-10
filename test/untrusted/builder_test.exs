@@ -1,6 +1,7 @@
 defmodule Untrusted.BuilderTest do
   use ExUnit.Case
   alias Untrusted.{Validation, Builder, TestExample}
+  require Untrusted.Builder
 
   describe "build_mapping/1" do
     @namespaces TestExample.__untrusted__(:namespaces)

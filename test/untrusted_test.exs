@@ -91,4 +91,10 @@ defmodule UntrustedTest do
       %Untrusted.Error{field: :thing, reason: {:must_be_one_of, keys}, source: :not_one}
     ]
   end
+
+  test "validate/2 works for must_be_nil" do
+    result = Untrusted.validate(Untrusted.TestExample, [works: :must_be_nil], %{works: :maybe})
+    error = %Untrusted.Error{field: :works, reason: :must_be_nil, source: :maybe}
+    assert result == {:error, [error]}
+  end
 end

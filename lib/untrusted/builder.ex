@@ -1,13 +1,19 @@
 defmodule Untrusted.Builder do
   alias Untrusted.{Validation, Resolver}
 
-  def build(namespaces, validations) do
-    validations
-    |> Enum.reduce(%{}, fn entry, acc -> update_mapping(acc, do_build(namespaces, entry)) end)
-    |> Enum.map(fn {_, validation} -> post_process(validation) end)
+  defmacro build(namespaces, validations) do
+    quote do
+      unquote(validations)
+      |> Enum.reduce(%{}, fn entry, acc ->
+        Untrusted.Builder.update_mapping(acc, Untrusted.Builder.build_one(unquote(namespaces), entry))
+      end)
+      |> Enum.map(fn {_, validation} ->
+        Untrusted.Builder.post_process(validation)
+      end)
+    end
   end
 
-  defp post_process(%Validation{functions: funcs, required?: required?, list?: list?} = validation) do
+  def post_process(%Validation{functions: funcs, required?: required?, list?: list?} = validation) do
     %Validation{
       validation
       | functions: funcs |> List.flatten,
@@ -20,31 +26,31 @@ defmodule Untrusted.Builder do
   defp ensure_boolean(true, _default), do: true
   defp ensure_boolean(false, _default), do: false
 
-  defp do_build(modules, {field_key, funcs}) when is_list(funcs) do
-    Enum.map(funcs, fn func -> do_build(modules, {field_key, func}) end)
+  def build_one(modules, {field_key, funcs}) when is_list(funcs) do
+    Enum.map(funcs, fn func -> build_one(modules, {field_key, func}) end)
   end
 
-  defp do_build(_modules, %Validation{} = validation) do
+  def build_one(_modules, %Validation{} = validation) do
     validation
   end
 
-  defp do_build(_modules, {_field_key, %Validation{} = validation}) do
+  def build_one(_modules, {_field_key, %Validation{} = validation}) do
     validation
   end
 
-  defp do_build(_modules, {field_key, :list}) do
+  def build_one(_modules, {field_key, :list}) do
     %Validation{field: field_key, list?: true}
   end
 
-  defp do_build(_modules, {field_key, :optional}) do
+  def build_one(_modules, {field_key, :optional}) do
     %Validation{field: field_key, required?: false}
   end
 
-  defp do_build(_modules, {field_key, :required}) do
+  def build_one(_modules, {field_key, :required}) do
     %Validation{field: field_key, required?: true}
   end
 
-  defp do_build(modules, {field_key, func_or_module} = entry) when is_atom(func_or_module) do
+  def build_one(modules, {field_key, func_or_module} = entry) when is_atom(func_or_module) do
     case find_function([func_or_module], :validate, 1) do
       {:ok, module, function, arity} ->
         %Validation{field: field_key, functions: [{module, function, arity}]}
@@ -53,15 +59,15 @@ defmodule Untrusted.Builder do
     end
   end
 
-  defp do_build(_modules, {field_key, func}) when is_function(func, 1) do
+  def build_one(_modules, {field_key, func}) when is_function(func, 1) do
     %Validation{field: field_key, functions: [func]}
   end
 
-  defp update_mapping(mapping, validations) when is_list(validations) do
+  def update_mapping(mapping, validations) when is_list(validations) do
     Enum.reduce(validations, mapping, fn validation, acc -> update_mapping(acc, validation) end)
   end
 
-  defp update_mapping(mapping, %Validation{} = validation) do
+  def update_mapping(mapping, %Validation{} = validation) do
     mapping
     |> add_function(validation)
     |> update_required(validation)

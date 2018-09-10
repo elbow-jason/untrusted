@@ -35,6 +35,7 @@ defmodule Untrusted.Validators do
   def boolean(x) when is_boolean(x), do: :ok
   def boolean(_), do: {:error, :must_be_a_boolean}
 
-
-
+  @spec must_be_nil(any()) :: :ok | {:error, :must_be_nil}
+  def must_be_nil(nil), do: :ok
+  def must_be_nil(_), do: {:error, :must_be_nil}
 end

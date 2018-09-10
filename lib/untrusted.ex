@@ -11,6 +11,7 @@ defmodule Untrusted do
   defmacro __using__(kwargs \\ []) do
     quote do
       require Untrusted
+      require Untrusted.Builder
       import Untrusted.ValidatorFunctions
 
       kwargs = unquote(kwargs)
@@ -23,16 +24,17 @@ defmodule Untrusted do
 
   defmacro validate(validations, params) do
     quote do
-      __MODULE__
-      |> Untrusted.build(unquote(validations))
-      |> Validation.run(unquote(params))
+      Untrusted.validate(__MODULE__, unquote(validations), unquote(params))
     end
   end
 
-  def validate(module, validations, params) when is_atom(module) do
-    module
-    |> Builder.build(validations)
-    |> Validation.run(params)
+  defmacro validate(module, validations, params) do
+    quote do
+      require Untrusted.Builder
+      unquote(module).__untrusted__(:namespaces)
+      |> Untrusted.Builder.build(unquote(validations))
+      |> Validation.run(unquote(params))
+    end
   end
 
   defmacro build(validations) do
@@ -43,6 +45,7 @@ defmodule Untrusted do
 
   defmacro build(module, validations) do
     quote do
+      require Untrusted.Builder
       Untrusted.Builder.build(unquote(module).__untrusted__(:namespaces), unquote(validations))
     end
   end
