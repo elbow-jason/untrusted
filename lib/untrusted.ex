@@ -3,10 +3,16 @@ defmodule Untrusted do
   Documentation for Untrusted.
   """
 
+  alias Untrusted.{
+    Validation,
+    Builder
+  }
+
   defmacro __using__(kwargs \\ []) do
     quote do
       require Untrusted
       import Untrusted.ValidatorFunctions
+
       kwargs = unquote(kwargs)
       @namespaces Keyword.get(kwargs, :namespaces, []) ++ [Untrusted.Validators]
       def __untrusted__(:namespaces) do
@@ -17,15 +23,28 @@ defmodule Untrusted do
 
   defmacro validate(validations, params) do
     quote do
-      unquote(validations)
-      |> Untrusted.build()
-      |> Untrusted.Validation.run(unquote(params))
+      __MODULE__
+      |> Untrusted.build(unquote(validations))
+      |> Validation.run(unquote(params))
     end
+  end
+
+  def validate(module, validations, params) when is_atom(module) do
+    module
+    |> Builder.build(validations)
+    |> Validation.run(params)
   end
 
   defmacro build(validations) do
     quote do
-      Untrusted.Builder.build(__MODULE__.__untrusted__(:namespaces), unquote(validations))
+      Untrusted.build(__MODULE__, unquote(validations))
     end
   end
+
+  defmacro build(module, validations) do
+    quote do
+      Untrusted.Builder.build(unquote(module).__untrusted__(:namespaces), unquote(validations))
+    end
+  end
+
 end

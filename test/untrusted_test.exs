@@ -59,5 +59,36 @@ defmodule UntrustedTest do
     ]}
   end
 
+  test "validate/2 errors for must_be_one_of lists" do
+    import Untrusted.ValidatorFunctions, only: [must_be_one_of: 1]
+    validator_params = [thing: must_be_one_of([1, 2, 3])]
+    {:error, errors} = Untrusted.validate(Untrusted.TestExample, validator_params, %{thing: :not_one})
+    assert errors == [
+      %Untrusted.Error{field: :thing, reason: {:must_be_one_of, [1, 2, 3]}, source: :not_one}
+    ]
+  end
 
+  test "validate/2 errors for must_be_one_of MapSets" do
+    import Untrusted.ValidatorFunctions, only: [must_be_one_of: 1]
+    set = MapSet.new([1, 2, 3])
+    validator_params = [thing: must_be_one_of(set)]
+    {:error, errors} = Untrusted.validate(Untrusted.TestExample, validator_params, %{thing: :not_one})
+    assert errors == [
+      %Untrusted.Error{field: :thing, reason: {:must_be_one_of, set}, source: :not_one}
+    ]
+  end
+
+  test "validate/2 errors for must_be_key_of" do
+    import Untrusted.ValidatorFunctions, only: [must_be_key_of: 1]
+    mapping = %{
+      "ONE" => 1,
+      "TWO" => 2,
+    }
+    keys = Map.keys(mapping)
+    validator_params = [thing: must_be_key_of(mapping)]
+    {:error, errors} = Untrusted.validate(Untrusted.TestExample, validator_params, %{thing: :not_one})
+    assert errors == [
+      %Untrusted.Error{field: :thing, reason: {:must_be_one_of, keys}, source: :not_one}
+    ]
+  end
 end
