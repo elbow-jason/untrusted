@@ -11,11 +11,13 @@ defmodule Untrusted.Validation do
           field: field_key,
           required?: boolean | nil,
           list?: boolean,
+          forced?: boolean,
           functions: list({module, atom, non_neg_integer, list(any)})
         }
 
   defstruct field: nil,
             required?: nil,
+            forced?: nil,
             list?: nil,
             functions: []
 
@@ -46,6 +48,9 @@ defmodule Untrusted.Validation do
     case {validation, Helpers.map_fetch(params, field)} do
       {_, {:ok, value}} ->
         run_with_value(ctx, validation, value)
+
+      {%Validation{forced?: true}, :error} ->
+        run_with_value(ctx, validation, nil)
 
       {%Validation{required?: true}, :error} ->
         error = error_required_key_not_found(validation, params)

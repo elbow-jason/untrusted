@@ -11,7 +11,8 @@ defmodule Untrusted.BuilderTest do
                  field: :count,
                  required?: true,
                  functions: [{Untrusted.Validators, :integer, 1}],
-                 list?: false
+                 list?: false,
+                 forced?: false
                }
              ] == Builder.build(@namespaces, count: :integer)
     end
@@ -21,7 +22,8 @@ defmodule Untrusted.BuilderTest do
                %Validation{
                  field: :count,
                  required?: true,
-                 list?: false
+                 list?: false,
+                 forced?: false
                }
              ] = Builder.build(@namespaces, count: :required)
     end
@@ -32,7 +34,8 @@ defmodule Untrusted.BuilderTest do
                  field: :count,
                  functions: [],
                  required?: false,
-                 list?: false
+                 list?: false,
+                 forced?: false
                }
              ] = Builder.build(@namespaces, count: :optional)
     end
@@ -43,7 +46,8 @@ defmodule Untrusted.BuilderTest do
                  field: :count,
                  functions: [],
                  required?: true,
-                 list?: true
+                 list?: true,
+                 forced?: false
                }
              ] == Builder.build(@namespaces, count: :list)
     end

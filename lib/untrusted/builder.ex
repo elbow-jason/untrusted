@@ -11,12 +11,13 @@ defmodule Untrusted.Builder do
     end)
   end
 
-  def post_process(%Validation{functions: funcs, required?: required?, list?: list?} = validation) do
+  def post_process(%Validation{functions: funcs, required?: required?, list?: list?, forced?: forced?} = validation) do
     %Validation{
       validation
       | functions: funcs |> List.flatten(),
         required?: ensure_boolean(required?, true),
-        list?: ensure_boolean(list?, false)
+        list?: ensure_boolean(list?, false),
+        forced?: ensure_boolean(forced?, false)
     }
   end
 
@@ -34,6 +35,10 @@ defmodule Untrusted.Builder do
 
   def build_one(_modules, {_field_key, %Validation{} = validation}) do
     validation
+  end
+
+  def build_one(_modules, {field_key, :force}) do
+    %Validation{field: field_key, forced?: true}
   end
 
   def build_one(_modules, {field_key, :list}) do

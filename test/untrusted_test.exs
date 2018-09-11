@@ -1,5 +1,8 @@
 defmodule UntrustedTest do
   use ExUnit.Case
+
+  alias Untrusted.Error
+
   doctest Untrusted
 
   test "__untrusted__(:namespaces) lists configured namespaces" do
@@ -24,6 +27,15 @@ defmodule UntrustedTest do
     ]
 
     assert Untrusted.TestExample.has_name(%{item: 1}) == {:error, errors}
+  end
+
+  test "force keyword builds correctly" do
+    assert [%Untrusted.Validation{forced?: true}] = Untrusted.build(Untrusted.TestExample, thing: [:force, :integer])
+  end
+
+  test "force validation forced a validation to run even if the key is not included" do
+    error = %Error{source: nil, field: :thing, reason: :must_be_an_integer}
+    assert {:error, [error]} == Untrusted.validate(Untrusted.TestExample, [thing: [:force, :integer]], %{})
   end
 
   test "validate/2 can handle lists when given non-list" do
@@ -119,7 +131,8 @@ defmodule UntrustedTest do
                field: :works,
                functions: [{Untrusted.Validators, :must_be_nil, 1}],
                list?: false,
-               required?: true
+               required?: true,
+               forced?: false
              }
            ]
   end

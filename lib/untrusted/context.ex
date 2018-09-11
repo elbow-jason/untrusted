@@ -1,6 +1,6 @@
 defmodule Untrusted.Context do
   alias Untrusted.{
-    Context,
+    Context
   }
 
   defstruct validations: [],
