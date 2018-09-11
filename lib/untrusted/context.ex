@@ -1,7 +1,6 @@
 defmodule Untrusted.Context do
   alias Untrusted.{
     Context,
-    Error
   }
 
   defstruct validations: [],
@@ -9,7 +8,7 @@ defmodule Untrusted.Context do
             errors: [],
             params: nil
 
-  def put_error(%Context{errors: prev} = ctx, %Error{} = error) do
+  def put_error(%Context{errors: prev} = ctx, %{} = error) do
     %Context{ctx | errors: [error | prev]}
   end
 
