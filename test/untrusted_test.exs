@@ -114,26 +114,29 @@ defmodule UntrustedTest do
   end
 
   test "build/2 works" do
-    assert Untrusted.build(Untrusted.TestExample, [works: :must_be_nil]) == [
-      %Untrusted.Validation{
-        field: :works,
-        functions: [{Untrusted.Validators, :must_be_nil, 1}],
-        list?: false,
-        required?: true
-      }
-    ]
+    assert Untrusted.build(Untrusted.TestExample, works: :must_be_nil) == [
+             %Untrusted.Validation{
+               field: :works,
+               functions: [{Untrusted.Validators, :must_be_nil, 1}],
+               list?: false,
+               required?: true
+             }
+           ]
   end
 
   describe "use Untrusted" do
     test "injects build" do
       result = Untrusted.TestExample.validate([works: :must_be_nil], %{works: :maybe})
-      assert result == {:error, [
-        %Untrusted.Error{
-          field: :works,
-          reason: :must_be_nil,
-          source: :maybe
-        }
-      ]}
+
+      assert result ==
+               {:error,
+                [
+                  %Untrusted.Error{
+                    field: :works,
+                    reason: :must_be_nil,
+                    source: :maybe
+                  }
+                ]}
     end
   end
 end

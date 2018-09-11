@@ -86,6 +86,9 @@ defmodule Untrusted.Validation do
       {:error, reason} when is_atom(reason) or is_tuple(reason) ->
         Context.put_error(ctx, into_error(key, value, reason))
 
+      {:error, error} when is_map(error) ->
+        Context.put_error(ctx, error)
+
       {:error, errors} when is_list(errors) ->
         Context.put_error(ctx, errors)
     end
